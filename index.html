@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>پیام‌های برای زری من</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap'); 
+
+        body { margin: 0; overflow: hidden; font-family: 'Vazirmatn', sans-serif; background: linear-gradient(135deg, #4262f0 0%, #fc5eec 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #f0f0f0; position: relative; }
+        
+        .background-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)); z-index: 0; }
+
+        .main-content { position: relative; z-index: 1; text-align: center; padding: 30px 40px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); max-width: 600px; width: 90%; }
+
+        .message-area { min-height: 120px; margin-bottom: 40px; display: flex; justify-content: center; align-items: center; transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out; }
+        .message-area.hidden { opacity: 0; transform: translateY(-20px); }
+        .message-area.visible { opacity: 1; transform: translateY(0); }
+
+        .message-text { font-size: 26px; line-height: 1.5; font-weight: 400; text-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+
+        .action-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 30px; }
+        .action-button { padding: 12px 25px; border: none; border-radius: 10px; color: white; font-family: 'Vazirmatn', sans-serif; font-size: 18px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.3); background: linear-gradient(to right, #000000, #434343); }
+        .action-button:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+
+        .nav-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 40px; }
+        .nav-button { padding: 10px 20px; border: none; border-radius: 8px; background: rgba(255,255,255,0.2); color: white; font-family: 'Vazirmatn', sans-serif; font-size: 16px; cursor: pointer; transition: all 0.3s ease; }
+        .nav-button:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
+
+    
+        .nav-button.happy { background: linear-gradient(to right, #e50000, #f95e5e); color: white; }
+        .nav-button.sad { background: linear-gradient(to right, #575757, #666666); color: white; }
+        .nav-button.apology { background: linear-gradient(to right, #2181ff, #979af7); color: white; }
+
+        .content-section { display: none; }
+        .content-section.active { display: block; animation: fadeIn 1s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes moveParticles { 0% { transform: translateY(0) rotate(0deg); opacity: 0.8; } 50% { transform: translateY(-200px) rotate(180deg); opacity: 0.3; } 100% { transform: translateY(-400px) rotate(360deg); opacity: 0; } }
+        @keyframes pulseMessage { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div class="main-content">
+        
+        <div id="content-happy" class="content-section active">
+            <div class="message-area visible" id="message-happy">
+                <span class="message-text" id="happy-message-content"></span>
+            </div>
+            <div class="action-buttons">
+                <button class="action-button" onclick="copyMessage('happy-message-content')">کپی پیام</button>
+                <button class="action-button" onclick="recommendAction('happy')">پیشنهاد بده</button>
+            </div>
+        </div>
+
+        <div id="content-sad" class="content-section">
+            <div class="message-area hidden" id="message-sad">
+                <span class="message-text" id="sad-message-content"></span>
+            </div>
+            <div class="action-buttons">
+                <button class="action-button" onclick="copyMessage('sad-message-content')">کپی پیام</button>
+                <button class="action-button" onclick="recommendAction('sad')">پیشنهاد بده</button>
+            </div>
+        </div>
+
+        <div id="content-apology" class="content-section">
+            <div class="message-area hidden" id="message-apology">
+                <span class="message-text" id="apology-message-content"></span>
+            </div>
+            <div class="action-buttons">
+                <button class="action-button" onclick="copyMessage('apology-message-content')">کپی پیام</button>
+                <button class="action-button" onclick="recommendAction('apology')">پیشنهاد بده</button>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-button happy" onclick="switchState('happy')">عشق</button>
+            <button class="nav-button sad" onclick="switchState('sad')">دلخوری</button>
+            <button class="nav-button apology" onclick="switchState('apology')">آشتی</button>
+        </div>
+    </div>
+
+    <script>
+      
+        const messages = {
+            happy: [
+                "زهرا، هر لحظه با تو یه هدیه است. دوستت دارم بیشتر از هر چیزی!",
+                "تو دلیل لبخند منی. دنیای من با تو رنگی‌تره، عزیزم.",
+                "یادته اولین بار...؟ اون روز فهمیدم زندگی یعنی تو. دوستت دارم.",
+                "قلبم فقط برای تو می‌تپه. هیچ‌کس مثل تو نمی‌تونه منو خوشحال کنه.",
+                "تو بهترین اتفاق زندگی منی. همیشه کنارم بمون، عشق من.",
+                "با تو، حتی سخت‌ترین روزها هم آسون میشن. ممنونم که هستی.",
+                "چقدر خوبه که تو رو دارم. تو تمام دنیای منی.",
+                "صدای خنده‌هات قشنگ‌ترین موسیقی دنیاست. دوستت دارم زهرا.",
+                "تو فرشته نجات منی. وقتی کنارمی، هیچ ترسی ندارم.",
+                "عشق من، تو زیبایی، مهربونی، و همه چیز منی. عاشقتم."
+            ],
+            sad: [
+                "ازت دلخورم، اما هنوزم دوستت دارم. کاش می‌تونستم این حس رو بهت بگم.",
+                "یه چیزی توی دلم سنگینی می‌کنه. نیاز دارم کمی تنها باشم.",
+                "وقتی ناراحتی، دنیای منم تیره میشه. لطفا بهم فرصت بده تا در موردش حرف بزنیم.",
+                "حرف‌هایی که زدی، قلبم رو شکست. نمیدونم چطور باید این دلخوری رو از بین ببرم.",
+                "یه سکوت بینمون افتاده که خیلی سخته. امیدوارم زودتر این فاصله از بین بره.",
+                "حس می‌کنم یه چیزی درست نیست. کاش می‌تونستیم مثل قبل راحت حرف بزنیم.",
+                "دلم گرفته... خیلی دلم گرفته. نیاز به درک شدن دارم.",
+                "این دلخوری داره من رو آزار میده. کاش زودتر همه چیز درست بشه.",
+                "ترجیح میدم الان تنها باشم. بعداً شاید بتونیم حرف بزنیم.",
+                "نمی‌دونم چی بگم که حالت رو بهتر کنه، فقط می‌دونم که الان ناراحتم."
+            ],
+            apology: [
+                "ببخشید عزیزم. اشتباه کردم و پشیمونم. بیا دوباره بخندیم.",
+                "عذرخواهی می‌کنم برای دلخوری که ایجاد کردم. امیدوارم بتونی من رو ببخشی.",
+                "واقعاً متاسفم. بیا این دلخوری رو فراموش کنیم و دوباره خوشحال باشیم.",
+                "می‌دونم که ناراحت شدی. قول میدم بیشتر مراقب حرف‌ها و کارهام باشم. ببخشید.",
+                "می‌خوام دوباره بخندیم. بیا این لحظات سخت رو پشت سر بذاریم. من منتظر آشتی‌ام.",
+                "قلبم برای آشتی با تو پر می‌زنه. لطفا من رو ببخش.",
+                "بیا با یه بغل گرم، همه دلخوری‌ها رو فراموش کنیم. ببخشید عشقم.",
+                "من بدون تو نمی‌تونم. لطفا من رو ببخش و اجازه بده دوباره شاد باشیم.",
+                "این دلخوری‌ها رو بذاریم کنار. بیا با هم بسازیم، نه اینکه خراب کنیم. متاسفم.",
+                "باور کن که هیچ‌وقت نمی‌خوام ناراحتت کنم. لطفا من رو ببخش."
+            ]
+        };
+
+       
+        const recommendations = {
+            happy: [
+                "یه آهنگ عاشقانه بفرست که حس دلتنگی رو کمتر کنه.",
+                "یه کلیپ کوتاه و بامزه براش بساز یا پیدا کن.",
+                "اگه می‌تونی، یه شاخه گل خوشگل براش بخر و بفرست.",
+                "یه پیام صوتی عاشقانه ضبط کن و براش بفرست.",
+                "باهاش تماس تصویری بگیر و بگو چقدر دوستش داری.",
+                "یه خاطره مشترک قشنگ رو براش یادآوری کن.",
+                "براش یه نقاشی یا طرح ساده بکش و بفرست.",
+                "یه شعر عاشقانه براش بفرست یا بخون.",
+                "یه هدیه کوچیک و بامزه براش بخر.",
+                "یه لیست پخش از آهنگ‌های مورد علاقه‌تون بساز."
+            ],
+            sad: [
+                "بهش بگو که براش وقت داری تا حرف بزنه، حتی اگه الان حوصله نداری.",
+                "یه پیام کوتاه بفرست که نشون بده متوجه ناراحتیش هستی.",
+                "سکوت کن و بهش فضا بده، ولی نشون بده که حواست بهش هست.",
+                "یه موزیک آرامش‌بخش براش بفرست.",
+                "اگه می‌تونی، یه یادداشت کوچیک بنویس و از احساسات خودت بگو.",
+                "دعوتش کن به یه پیاده‌روی آروم، شاید حالش بهتر بشه.",
+                "براش یه چیز کوچیک بپز یا بخر که دوست داره.",
+                "بهش بگو که دلت برای خنده‌هاش تنگ شده.",
+                "اگه لازمه، کمی عقب بکش تا بتونه فکر کنه.",
+                "یه پیام بفرست که بگی دلت برای لحظات خوبتون تنگ شده."
+            ],
+            apology: [
+                "یه آهنگ آشتی‌کنان براش بفرست.",
+                "یه پیام صوتی بفرست و با صدای آروم عذرخواهی کن.",
+                "یه شعر کوتاه که معذرت‌خواهی می‌کنه براش بفرست.",
+                "اگه ممکنه، یه شاخه گل رز قرمز یا سفید براش بفرست.",
+                "بگو که حاضری براش هر کاری بکنی تا دلش آروم بشه.",
+                "یه شوخی بامزه و بی‌ضرر بکن تا فضا کمی عوض بشه.",
+                "یه یادداشت دست‌نویس براش بنویس و احساسات قلبت رو بگو.",
+                "دعوتش کن به یه قرار ساده و عاشقانه.",
+                "بهش بگو که چقدر قدردانشی و نمی‌خوای از دستش بدی.",
+                "یه پیام بفرست که بگی منتظر فرصتی برای جبران هستی."
+            ]
+        };
+
+       
+        const happyMessageEl = document.getElementById('happy-message-content');
+        const sadMessageEl = document.getElementById('sad-message-content');
+        const apologyMessageEl = document.getElementById('apology-message-content');
+        const messageAreas = {
+            happy: document.getElementById('message-happy'),
+            sad: document.getElementById('message-sad'),
+            apology: document.getElementById('message-apology')
+        };
+        const navButtons = document.querySelectorAll('.nav-button');
+
+        let currentState = 'happy';
+
+        
+        function getRandomMessage(state) {
+            const stateMessages = messages[state];
+            const randomIndex = Math.floor(Math.random() * stateMessages.length);
+            return stateMessages[randomIndex];
+        }
+
+        function displayMessage(state) {
+            const messageArea = messageAreas[state];
+            const messageElement = document.getElementById(`${state}-message-content`);
+
+            // Hide current message
+            messageArea.classList.remove('visible');
+            messageArea.classList.add('hidden');
+
+            
+            setTimeout(() => {
+                messageElement.textContent = getRandomMessage(state);
+                messageArea.classList.remove('hidden');
+                messageArea.classList.add('visible');
+                messageElement.style.animation = 'pulseMessage 1.5s ease-in-out infinite';
+                setTimeout(() => {
+                    messageElement.style.animation = ''; 
+                }, 1500);
+            }, 800);
+        }
+
+        function switchState(newState) {
+            if (newState === currentState) return;
+
+           
+            document.getElementById(`content-${currentState}`).classList.remove('active');
+            document.querySelector(`.nav-button.${currentState}`).classList.remove('active');
+
+            
+            currentState = newState;
+            document.getElementById(`content-${currentState}`).classList.add('active');
+            document.querySelector(`.nav-button.${currentState}`).classList.add('active');
+
+            displayMessage(currentState);
+        }
+
+        function copyMessage(messageElementId) {
+            const messageText = document.getElementById(messageElementId).textContent;
+            navigator.clipboard.writeText(messageText).then(() => {
+                alert('پیام کپی شد!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('کپی کردن پیام با خطا مواجه شد.');
+            });
+        }
+
+        function recommendAction(state) {
+            const stateRecommendations = recommendations[state];
+            const randomIndex = Math.floor(Math.random() * stateRecommendations.length);
+            const recommendation = stateRecommendations[randomIndex];
+            
+            
+            alert(`پیشنهاد: ${recommendation}`);
+           
+        }
+
+       
+        document.addEventListener('DOMContentLoaded', () => {
+          
+            document.getElementById(`content-${currentState}`).classList.add('active');
+            document.getElementById(`message-${currentState}`).classList.add('visible');
+            document.getElementById('happy-message-content').textContent = getRandomMessage(currentState);
+            document.querySelector(`.nav-button.${currentState}`).classList.add('active');
+        });
+    </script>
+</body>
+</html>
